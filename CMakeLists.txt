@@ -1,0 +1,61 @@
+set(headers
+    src/configconstraints_base.h
+    src/configconstraints_espchrono.h
+    src/configmanager.h
+    src/configmanager_priv.h
+    src/configutils_base.h
+    src/configutils_cpputils.h
+    src/configutils_espchrono.h
+    src/configutils_espcpputils.h
+    src/configutils_espwifistack.h
+    src/configutils_optional.h
+    src/configutils_priv_enum.h
+    src/configutils_sntp.h
+    src/configwrapper.h
+    src/configwrapperinterface.h
+    src/configwrapper_priv.h
+)
+
+set(sources
+    src/configwrapper_base.cpp
+    src/configwrapper_cpputils.cpp
+    src/configwrapper_espchrono.cpp
+    src/configwrapper_espcpputils.cpp
+    src/configwrapper_espwifistack.cpp
+    src/configwrapper_optional.cpp
+    src/configwrapper_sntp.cpp
+    src/configwrapperinterface.cpp
+)
+
+set(dependencies
+    ArduinoJson
+    cpputils
+    espchrono
+    espcpputils
+    esphttpdutils
+    espwifistack
+    date
+    espchrono
+    expected
+    fmt
+)
+
+idf_component_register(
+    INCLUDE_DIRS
+        src
+    SRCS
+        ${headers}
+        ${sources}
+    REQUIRES
+        ${dependencies}
+)
+
+target_compile_options(${COMPONENT_TARGET}
+    PRIVATE
+        -fstack-reuse=all
+        -fstack-protector-all
+        -Wno-unused-function
+        -Wno-deprecated-declarations
+        -Wno-missing-field-initializers
+        -Wno-parentheses
+)
