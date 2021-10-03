@@ -13,10 +13,12 @@
 #include "espchrono.h"
 
 #define INSTANTIATE_CONFIGMANAGER_TEMPLATES(Type) \
+    namespace espconfig { \
     template esp_err_t ConfigManager<Type>::init(); \
     /* template bool ConfigManager<Type>::erase(); */ \
     template ConfigStatusReturnType ConfigManager<Type>::reset(); \
-    template ConfigWrapperInterface *ConfigManager<Type>::findConfigByKey(std::string_view key);
+    template ConfigWrapperInterface *ConfigManager<Type>::findConfigByKey(std::string_view key); \
+    } // namespace espconfig
 
 namespace espconfig {
 namespace {

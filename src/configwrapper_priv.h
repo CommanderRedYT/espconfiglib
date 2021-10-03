@@ -18,6 +18,7 @@
 #include "cpputils.h"
 
 #define INSTANTIATE_CONFIGWRAPPER_TEMPLATES(TYPE) \
+    namespace espconfig { \
     template ConfigWrapper<TYPE>::ConfigWrapper(const TYPE &defaultValue, AllowReset allowReset, ConstraintCallback constraintCallback, const char *nvsName); \
     template ConfigWrapper<TYPE>::ConfigWrapper(TYPE &&defaultValue, AllowReset allowReset, ConstraintCallback constraintCallback, const char *nvsName); \
     template ConfigWrapper<TYPE>::ConfigWrapper(const ConfigWrapper<TYPE> &factoryConfig, ConstraintCallback constraintCallback, const char *nvsName); \
@@ -31,7 +32,8 @@
     template ConfigStatusReturnType ConfigWrapper<TYPE>::reset(nvs_handle_t nvsHandle); \
     template ConfigStatusReturnType ConfigWrapper<TYPE>::forceReset(nvs_handle_t nvsHandle); \
     template ConfigConstraintReturnType ConfigWrapper<TYPE>::checkValue(value_t value) const; \
-    template ConfigStatusReturnType ConfigWrapper<TYPE>::writeToFlash(nvs_handle_t nvsHandle, value_t value);
+    template ConfigStatusReturnType ConfigWrapper<TYPE>::writeToFlash(nvs_handle_t nvsHandle, value_t value); \
+    } // namespace espconfig
 
 namespace espconfig {
 namespace {

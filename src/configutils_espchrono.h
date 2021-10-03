@@ -4,9 +4,9 @@
 #include "configutils_priv_enum.h"
 #include "espchrono.h"
 
-namespace espconfig {
-
 IMPLEMENT_NVS_GET_SET_ENUM(espchrono::DayLightSavingMode)
+
+namespace espconfig {
 
 #define IMPLEMENT_NVS_GET_SET_CHRONO(Name) \
     inline esp_err_t nvs_get(nvs_handle handle, const char* key, Name* out_value) \

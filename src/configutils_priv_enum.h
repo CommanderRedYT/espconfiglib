@@ -10,6 +10,7 @@
 #include "configutils_base.h"
 
 #define IMPLEMENT_NVS_GET_SET_ENUM(Name) \
+    namespace espconfig { \
     inline esp_err_t nvs_get(nvs_handle handle, const char* key, Name* out_value) \
     { \
         std::underlying_type_t<Name> temp; \
@@ -22,4 +23,5 @@
     inline esp_err_t nvs_set(nvs_handle handle, const char* key, Name value) \
     { \
         return nvs_set(handle, key, std::underlying_type_t<Name>(value)); \
-    }
+    } \
+    } // namespace espconfig

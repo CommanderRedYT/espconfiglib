@@ -2,7 +2,4 @@
 #define CONFIGWRAPPER_TOSTRING_USINGS using ::espcpputils::toString;
 #include "configwrapper_priv.h"
 
-namespace espconfig {
-using CoreAffinity = espcpputils::CoreAffinity;
-INSTANTIATE_CONFIGWRAPPER_TEMPLATES(CoreAffinity)
-} // namespace espconfig
+INSTANTIATE_CONFIGWRAPPER_TEMPLATES(espcpputils::CoreAffinity)
