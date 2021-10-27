@@ -67,11 +67,11 @@ inline esp_err_t nvs_set(nvs_handle handle, const char* key, int16_t value)     
 inline esp_err_t nvs_set(nvs_handle handle, const char* key, uint16_t value)                  { return nvs_set_u16(handle, key, value); }
 inline esp_err_t nvs_set(nvs_handle handle, const char* key, int32_t value)                   { return nvs_set_i32(handle, key, value); }
 inline esp_err_t nvs_set(nvs_handle handle, const char* key, uint32_t value)                  { return nvs_set_u32(handle, key, value); }
-inline esp_err_t nvs_set(nvs_handle handle, const char* key, int64_t value)                   { return nvs_set_i64(handle, key, value); }
-inline esp_err_t nvs_set(nvs_handle handle, const char* key, uint64_t value)                  { return nvs_set_u64(handle, key, value); }
+inline esp_err_t nvs_set(nvs_handle handle, const char* key, const int64_t &value)            { return nvs_set_i64(handle, key, value); }
+inline esp_err_t nvs_set(nvs_handle handle, const char* key, const uint64_t &value)           { return nvs_set_u64(handle, key, value); }
 inline esp_err_t nvs_set(nvs_handle handle, const char* key, bool value)                      { return nvs_set_u8 (handle, key, value); }
 inline esp_err_t nvs_set(nvs_handle handle, const char* key, float value)                     { return nvs_set(handle, key, std::bit_cast<uint32_t>(value)); }
-inline esp_err_t nvs_set(nvs_handle handle, const char* key, double value)                    { return nvs_set(handle, key, std::bit_cast<uint64_t>(value)); }
+inline esp_err_t nvs_set(nvs_handle handle, const char* key, const double &value)             { return nvs_set(handle, key, std::bit_cast<uint64_t>(value)); }
 inline esp_err_t nvs_set(nvs_handle handle, const char* key, const std::string &value)        { return nvs_set_str(handle, key, value.c_str()); }
 
 } // namespace espconfig
