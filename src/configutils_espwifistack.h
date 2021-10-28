@@ -7,10 +7,14 @@
 
 // esp-idf includes
 #include <nvs.h>
+#include <esp_wifi_types.h>
 
 // local includes
 #include "configutils_base.h"
+#include "configutils_priv_enum.h"
 #include "espwifiutils.h"
+
+IMPLEMENT_NVS_GET_SET_ENUM(wifi_auth_mode_t)
 
 namespace espconfig {
 
