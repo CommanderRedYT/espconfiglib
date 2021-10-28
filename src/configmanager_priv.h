@@ -2,9 +2,6 @@
 
 #include "configmanager.h"
 
-#include "sdkconfig.h"
-#define LOG_LOCAL_LEVEL CONFIG_LOG_LOCAL_LEVEL_CONFIG
-
 // esp-idf includes
 #include <esp_log.h>
 #include <nvs_flash.h>
