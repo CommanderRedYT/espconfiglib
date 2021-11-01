@@ -11,7 +11,7 @@
 
 #define INSTANTIATE_CONFIGMANAGER_TEMPLATES(Type) \
     namespace espconfig { \
-    template esp_err_t ConfigManager<Type>::init(); \
+    template esp_err_t ConfigManager<Type>::init(const char *ns); \
     /* template bool ConfigManager<Type>::erase(); */ \
     template ConfigStatusReturnType ConfigManager<Type>::reset(); \
     template ConfigWrapperInterface *ConfigManager<Type>::findConfigByKey(std::string_view key); \
@@ -23,7 +23,7 @@ constexpr const char * const TAG = "CONFIG";
 } // namespace
 
 template<typename ConfigContainer>
-esp_err_t ConfigManager<ConfigContainer>::init()
+esp_err_t ConfigManager<ConfigContainer>::init(const char *ns)
 {
     ESP_LOGD(TAG, "called");
 
@@ -89,7 +89,7 @@ esp_err_t ConfigManager<ConfigContainer>::init()
 #endif
 
     {
-        const auto result = nvs_open_from_partition("nvs", "recharge", NVS_READWRITE, &nvs_handle_user);
+        const auto result = nvs_open_from_partition("nvs", ns, NVS_READWRITE, &nvs_handle_user);
         ESP_LOG_LEVEL_LOCAL((result == ESP_OK ? ESP_LOG_INFO : ESP_LOG_ERROR), TAG, "nvs_open() for user partition returned: %s", esp_err_to_name(result));
         if (result != ESP_OK)
             return result;
@@ -97,7 +97,7 @@ esp_err_t ConfigManager<ConfigContainer>::init()
 
 #ifdef CONFIG_SEPARATE_FACTORY_NVS_PARTITION
     {
-        const auto result = nvs_open_from_partition("nvsFac", "recharge", NVS_READWRITE, &nvs_handle_factory);
+        const auto result = nvs_open_from_partition("nvsFac", ns, NVS_READWRITE, &nvs_handle_factory);
         ESP_LOG_LEVEL_LOCAL((result == ESP_OK ? ESP_LOG_INFO : ESP_LOG_ERROR), TAG, "nvs_open() for factory partition returned: %s", esp_err_to_name(result));
         if (result != ESP_OK)
             return result;
