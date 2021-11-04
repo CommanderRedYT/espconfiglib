@@ -21,7 +21,7 @@ public:
     nvs_handle_t nvs_handle_factory{};
 #endif
 
-    esp_err_t init();
+    esp_err_t init(const char *ns);
     //bool erase();
     ConfigStatusReturnType reset();
 
