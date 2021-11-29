@@ -59,7 +59,7 @@ esp_err_t ConfigManager<ConfigContainer>::init(const char *ns)
         ESP_LOG_LEVEL_LOCAL((result == ESP_OK ? ESP_LOG_INFO : ESP_LOG_ERROR), TAG, "nvs_flash_read_security_cfg() returned: %s", esp_err_to_name(result));
         if (result != ESP_OK)
         {
-            if (result == ESP_ERR_NVS_KEYS_NOT_INITIALIZED)
+            if (result == ESP_ERR_NVS_KEYS_NOT_INITIALIZED || result == ESP_ERR_NVS_CORRUPT_KEY_PART)
             {
                 const auto result = nvs_flash_generate_keys(key_part, &cfg);
                 ESP_LOG_LEVEL_LOCAL((result == ESP_OK ? ESP_LOG_INFO : ESP_LOG_ERROR), TAG, "nvs_flash_generate_keys() returned: %s", esp_err_to_name(result));
