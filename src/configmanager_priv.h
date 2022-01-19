@@ -106,7 +106,7 @@ esp_err_t ConfigManager<ConfigContainer>::init(const char *ns)
 
     auto after = espchrono::millis_clock::now();
 
-    ESP_LOGI(TAG, "initializing NVS took %lldms", std::chrono::milliseconds{after-before}.count());
+    ESP_LOGI(TAG, "initializing NVS took %lldms", std::chrono::floor<std::chrono::milliseconds>(after-before).count());
 
     before = espchrono::millis_clock::now();
 
@@ -120,7 +120,7 @@ esp_err_t ConfigManager<ConfigContainer>::init(const char *ns)
 
     after = espchrono::millis_clock::now();
 
-    ESP_LOGI(TAG, "loading all config params took %lldms", std::chrono::milliseconds{after-before}.count());
+    ESP_LOGI(TAG, "loading all config params took %lldms", std::chrono::floor<std::chrono::milliseconds>(after-before).count());
 
     return success ? ESP_OK : ESP_FAIL;
 }
