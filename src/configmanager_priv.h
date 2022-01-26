@@ -111,12 +111,14 @@ esp_err_t ConfigManager<ConfigContainer>::init(const char *ns)
     before = espchrono::millis_clock::now();
 
     bool success = true;
-    for (ConfigWrapperInterface &config : ConfigContainer::getAllConfigParams())
+    ConfigContainer::callForEveryConfig([&](ConfigWrapperInterface &config){
         if (const auto result = config.loadFromFlash(nvs_handle_user); !result)
         {
             ESP_LOGE(TAG, "config parameter %s failed to load: %.*s", config.nvsName(), result.error().size(), result.error().data());
             success = false;
         }
+        return false; // dont abort the loop
+    });
 
     after = espchrono::millis_clock::now();
 
@@ -146,13 +148,15 @@ ConfigStatusReturnType ConfigManager<ConfigContainer>::reset()
 
     std::string message;
 
-    for (ConfigWrapperInterface &config : ConfigContainer::getAllConfigParams())
+    ConfigContainer::callForEveryConfig([&](ConfigWrapperInterface &config){
         if (const auto result = reset_config(config); !result)
         {
             if (!message.empty())
                 message.append(", ");
             message.append(fmt::format("reset of {} failed: {}", config.nvsName(), result.error()));
         }
+        return false; // dont abort loop
+    });
 
     if (!message.empty())
         return tl::make_unexpected(std::move(message));
@@ -163,10 +167,16 @@ ConfigStatusReturnType ConfigManager<ConfigContainer>::reset()
 template<typename ConfigContainer>
 ConfigWrapperInterface *ConfigManager<ConfigContainer>::findConfigByKey(std::string_view key)
 {
-    const auto configParams = ConfigContainer::getAllConfigParams();
-    const auto iter = std::find_if(std::cbegin(configParams), std::cend(configParams),
-                                   [&key](const ConfigWrapperInterface &config){ return key == config.nvsName(); });
-    return iter != std::cend(configParams) ? &iter->get() : nullptr;
+    ConfigWrapperInterface *result{};
+    ConfigContainer::callForEveryConfig([&](ConfigWrapperInterface &config){
+        if (key == config.nvsName())
+        {
+            result = &config;
+            return true; // abort the loop
+        }
+        return false; // dont abort loop
+    });
+    return result;
 }
 
 } // namespace espconfig
