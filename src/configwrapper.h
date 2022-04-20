@@ -16,21 +16,21 @@ namespace espconfig {
 using ConfigConstraintReturnType = ConfigStatusReturnType;
 
 template<typename T>
-class ConfigWrapper final : public ConfigWrapperInterface
+class ConfigWrapper : public ConfigWrapperInterface
 {
     CPP_DISABLE_COPY_MOVE(ConfigWrapper)
 
+public:
     using DefaultValueCallbackRef = T(&)();
     using DefaultValueCallbackPtr = T(*)();
 
-public:
     using value_t = typename std::conditional<std::is_same<T, std::string>::value, const T &, T>::type;
     using ConstraintCallback = ConfigConstraintReturnType(*)(value_t);
 
-    ConfigWrapper(const T &defaultValue, AllowReset allowReset, ConstraintCallback constraintCallback, const char *nvsName);
-    ConfigWrapper(T &&defaultValue, AllowReset allowReset, ConstraintCallback constraintCallback, const char *nvsName);
-    ConfigWrapper(const ConfigWrapper<T> &factoryConfig, ConstraintCallback constraintCallback, const char *nvsName);
-    ConfigWrapper(const DefaultValueCallbackRef &defaultCallback, AllowReset allowReset, ConstraintCallback constraintCallback, const char *nvsName);
+    ConfigWrapper(const T &defaultValue, ConstraintCallback constraintCallback);
+    ConfigWrapper(T &&defaultValue, ConstraintCallback constraintCallback);
+    ConfigWrapper(const ConfigWrapper<T> &factoryConfig, ConstraintCallback constraintCallback);
+    ConfigWrapper(const DefaultValueCallbackRef &defaultCallback, ConstraintCallback constraintCallback);
     ~ConfigWrapper() override;
 
     ConfigStatusReturnType write(nvs_handle_t nvsHandle, value_t value);

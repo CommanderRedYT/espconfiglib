@@ -19,10 +19,11 @@
 
 #define INSTANTIATE_CONFIGWRAPPER_TEMPLATES(TYPE) \
     namespace espconfig { \
-    template ConfigWrapper<TYPE>::ConfigWrapper(const TYPE &defaultValue, AllowReset allowReset, ConstraintCallback constraintCallback, const char *nvsName); \
-    template ConfigWrapper<TYPE>::ConfigWrapper(TYPE &&defaultValue, AllowReset allowReset, ConstraintCallback constraintCallback, const char *nvsName); \
-    template ConfigWrapper<TYPE>::ConfigWrapper(const ConfigWrapper<TYPE> &factoryConfig, ConstraintCallback constraintCallback, const char *nvsName); \
-    template ConfigWrapper<TYPE>::ConfigWrapper(DefaultValueCallbackRef &defaultCallback, AllowReset allowReset, ConstraintCallback constraintCallback, const char *nvsName); \
+    template ConfigWrapper<TYPE>::ConfigWrapper(const TYPE &defaultValue, ConstraintCallback constraintCallback); \
+    template ConfigWrapper<TYPE>::ConfigWrapper(TYPE &&defaultValue, ConstraintCallback constraintCallback); \
+    template ConfigWrapper<TYPE>::ConfigWrapper(const ConfigWrapper<TYPE> &factoryConfig, ConstraintCallback constraintCallback); \
+    template ConfigWrapper<TYPE>::ConfigWrapper(DefaultValueCallbackRef &defaultCallback, ConstraintCallback constraintCallback); \
+    template ConfigWrapper<TYPE>::~ConfigWrapper(); \
     template ConfigStatusReturnType ConfigWrapper<TYPE>::write(nvs_handle_t nvsHandle, value_t value); \
     template<> const char *ConfigWrapper<TYPE>::type() const { return #TYPE; } \
     template std::string ConfigWrapper<TYPE>::valueAsString() const; \
@@ -41,8 +42,7 @@ constexpr const char * const TAG = "CONFIG";
 } // namespace
 
 template<typename T>
-ConfigWrapper<T>::ConfigWrapper(const T &defaultValue, AllowReset allowReset, ConstraintCallback constraintCallback, const char *nvsName) :
-    ConfigWrapperInterface{allowReset, nvsName},
+ConfigWrapper<T>::ConfigWrapper(const T &defaultValue, ConstraintCallback constraintCallback) :
     m_defaultType{DefaultByValue},
     m_defaultValue{defaultValue},
     m_constraintCallback{constraintCallback}
@@ -50,8 +50,7 @@ ConfigWrapper<T>::ConfigWrapper(const T &defaultValue, AllowReset allowReset, Co
 }
 
 template<typename T>
-ConfigWrapper<T>::ConfigWrapper(T &&defaultValue, AllowReset allowReset, ConstraintCallback constraintCallback, const char *nvsName) :
-    ConfigWrapperInterface{allowReset, nvsName},
+ConfigWrapper<T>::ConfigWrapper(T &&defaultValue, ConstraintCallback constraintCallback) :
     m_defaultType{DefaultByValue},
     m_defaultValue{std::move(defaultValue)},
     m_constraintCallback{constraintCallback}
@@ -59,8 +58,7 @@ ConfigWrapper<T>::ConfigWrapper(T &&defaultValue, AllowReset allowReset, Constra
 }
 
 template<typename T>
-ConfigWrapper<T>::ConfigWrapper(const ConfigWrapper<T> &factoryConfig, ConstraintCallback constraintCallback, const char *nvsName) :
-    ConfigWrapperInterface{AllowReset::DoReset, nvsName},
+ConfigWrapper<T>::ConfigWrapper(const ConfigWrapper<T> &factoryConfig, ConstraintCallback constraintCallback) :
     m_defaultType{DefaultByFactoryConfig},
     m_factoryConfig{&factoryConfig},
     m_constraintCallback{constraintCallback}
@@ -68,8 +66,7 @@ ConfigWrapper<T>::ConfigWrapper(const ConfigWrapper<T> &factoryConfig, Constrain
 }
 
 template<typename T>
-ConfigWrapper<T>::ConfigWrapper(const DefaultValueCallbackRef &defaultCallback, AllowReset allowReset, ConstraintCallback constraintCallback, const char *nvsName) :
-    ConfigWrapperInterface{allowReset, nvsName},
+ConfigWrapper<T>::ConfigWrapper(const DefaultValueCallbackRef &defaultCallback, ConstraintCallback constraintCallback) :
     m_defaultType{DefaultByCallback},
     m_defaultCallback{&defaultCallback},
     m_constraintCallback{constraintCallback}
@@ -92,14 +89,14 @@ ConfigStatusReturnType ConfigWrapper<T>::write(nvs_handle_t nvsHandle, value_t v
 {
     CONFIGWRAPPER_TOSTRING_USINGS
 
-    ESP_LOGD(TAG, "%s %s", m_nvsName, toString(value).c_str());
+    ESP_LOGD(TAG, "%s %s", nvsName(), toString(value).c_str());
 
     if (!m_loaded)
-        ESP_LOGE(TAG, "%s has not been loaded yet!", m_nvsName);
+        ESP_LOGE(TAG, "%s has not been loaded yet!", nvsName());
 
     if (const auto result = checkValue(value); !result)
     {
-        ESP_LOGW(TAG, "%s cannot be set to %s: constraint not met: %s", m_nvsName, toString(value).c_str(), result.error().c_str());
+        ESP_LOGW(TAG, "%s cannot be set to %s: constraint not met: %s", nvsName(), toString(value).c_str(), result.error().c_str());
         return result;
     }
 
@@ -144,17 +141,17 @@ T ConfigWrapper<T>::defaultValue() const
 template<typename T>
 ConfigStatusReturnType ConfigWrapper<T>::loadFromFlash(nvs_handle_t nvsHandle)
 {
-    //ESP_LOGD(TAG, "%s", m_nvsName);
+    //ESP_LOGD(TAG, "%s", nvsName());
 
-    const auto result = nvs_get(nvsHandle, m_nvsName, &m_value);
+    const auto result = nvs_get(nvsHandle, nvsName(), &m_value);
 
-    ESP_LOG_LEVEL_LOCAL((cpputils::is_in(result, ESP_OK, ESP_ERR_NVS_NOT_FOUND) ? ESP_LOG_DEBUG : ESP_LOG_ERROR), TAG, "%s nvs_get() returned: %s", m_nvsName, esp_err_to_name(result));
+    ESP_LOG_LEVEL_LOCAL((cpputils::is_in(result, ESP_OK, ESP_ERR_NVS_NOT_FOUND) ? ESP_LOG_DEBUG : ESP_LOG_ERROR), TAG, "%s nvs_get() returned: %s", nvsName(), esp_err_to_name(result));
 
     if (result == ESP_OK)
     {
         if (const auto result = checkValue(m_value); !result)
         {
-            ESP_LOGE(TAG, "%s constraint not met for value in flash: %s", m_nvsName, result.error().c_str());
+            ESP_LOGE(TAG, "%s constraint not met for value in flash: %s", nvsName(), result.error().c_str());
             return forceReset(nvsHandle);
         }
 
@@ -168,7 +165,7 @@ ConfigStatusReturnType ConfigWrapper<T>::loadFromFlash(nvs_handle_t nvsHandle)
         m_touched = false;
         m_value = defaultValue();
         if (const auto result = checkValue(m_value); !result)
-            ESP_LOGE(TAG, "%s constraint not met for value from default: %s", m_nvsName, result.error().c_str());
+            ESP_LOGE(TAG, "%s constraint not met for value from default: %s", nvsName(), result.error().c_str());
 
         return {};
     }
@@ -181,9 +178,9 @@ ConfigStatusReturnType ConfigWrapper<T>::loadFromFlash(nvs_handle_t nvsHandle)
 template<typename T>
 ConfigStatusReturnType ConfigWrapper<T>::reset(nvs_handle_t nvsHandle)
 {
-    ESP_LOGD(TAG, "%s", m_nvsName);
+    ESP_LOGD(TAG, "%s", nvsName());
 
-    if (!m_allowReset)
+    if (!allowReset())
         return {};
 
     return forceReset(nvsHandle);
@@ -192,16 +189,16 @@ ConfigStatusReturnType ConfigWrapper<T>::reset(nvs_handle_t nvsHandle)
 template<typename T>
 ConfigStatusReturnType ConfigWrapper<T>::forceReset(nvs_handle_t nvsHandle)
 {
-    ESP_LOGD(TAG, "%s", m_nvsName);
+    ESP_LOGD(TAG, "%s", nvsName());
 
-    auto result = nvs_erase_key(nvsHandle, m_nvsName);
+    auto result = nvs_erase_key(nvsHandle, nvsName());
 
-    ESP_LOG_LEVEL_LOCAL((cpputils::is_in(result, ESP_OK, ESP_ERR_NVS_NOT_FOUND) ? ESP_LOG_DEBUG : ESP_LOG_ERROR), TAG, "%s nvs_erase_key() returned: %s", m_nvsName, esp_err_to_name(result));
+    ESP_LOG_LEVEL_LOCAL((cpputils::is_in(result, ESP_OK, ESP_ERR_NVS_NOT_FOUND) ? ESP_LOG_DEBUG : ESP_LOG_ERROR), TAG, "%s nvs_erase_key() returned: %s", nvsName(), esp_err_to_name(result));
 
     if (result == ESP_ERR_NVS_NOT_FOUND)
     {
         if (m_touched)
-            ESP_LOGE(TAG, "%s for touched and not found?!", m_nvsName);
+            ESP_LOGE(TAG, "%s for touched and not found?!", nvsName());
         result = ESP_OK;
     }
 
@@ -233,11 +230,11 @@ ConfigStatusReturnType ConfigWrapper<T>::writeToFlash(nvs_handle_t nvsHandle, va
 {
     CONFIGWRAPPER_TOSTRING_USINGS
 
-    ESP_LOGD(TAG, "%s %s", m_nvsName, toString(value).c_str());
+    ESP_LOGD(TAG, "%s %s", nvsName(), toString(value).c_str());
 
-    const auto result = nvs_set(nvsHandle, m_nvsName, value);
+    const auto result = nvs_set(nvsHandle, nvsName(), value);
 
-    ESP_LOG_LEVEL_LOCAL((result == ESP_OK ? ESP_LOG_INFO : ESP_LOG_ERROR), TAG, "%s %s nvs_set() returned %s", m_nvsName, toString(value).c_str(), esp_err_to_name(result));
+    ESP_LOG_LEVEL_LOCAL((result == ESP_OK ? ESP_LOG_INFO : ESP_LOG_ERROR), TAG, "%s %s nvs_set() returned %s", nvsName(), toString(value).c_str(), esp_err_to_name(result));
 
     m_value = value;
     m_touched = true;
