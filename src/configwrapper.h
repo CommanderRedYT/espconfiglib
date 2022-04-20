@@ -48,7 +48,7 @@ public:
 
     ConfigConstraintReturnType checkValue(value_t value) const;
 
-    const T &value{m_value};
+    const T &value() const { return m_value; }
 
 private:
     ConfigStatusReturnType writeToFlash(nvs_handle_t nvsHandle, value_t value);

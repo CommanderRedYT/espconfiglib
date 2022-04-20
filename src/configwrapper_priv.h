@@ -134,7 +134,7 @@ T ConfigWrapper<T>::defaultValue() const
     switch (m_defaultType)
     {
     case DefaultByValue:         return m_defaultValue;
-    case DefaultByFactoryConfig: assert(m_factoryConfig->m_loaded); return m_factoryConfig->value;
+    case DefaultByFactoryConfig: assert(m_factoryConfig->m_loaded); return m_factoryConfig->value();
     case DefaultByCallback:      return m_defaultCallback();
     }
 
