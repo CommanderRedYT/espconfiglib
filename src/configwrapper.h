@@ -27,11 +27,7 @@ public:
     using value_t = typename std::conditional<std::is_same<T, std::string>::value, const T &, T>::type;
     using ConstraintCallback = ConfigConstraintReturnType(*)(value_t);
 
-    ConfigWrapper(const T &defaultValue, ConstraintCallback constraintCallback);
-    ConfigWrapper(T &&defaultValue, ConstraintCallback constraintCallback);
-    ConfigWrapper(const ConfigWrapper<T> &factoryConfig, ConstraintCallback constraintCallback);
-    ConfigWrapper(const DefaultValueCallbackRef &defaultCallback, ConstraintCallback constraintCallback);
-    ~ConfigWrapper() override;
+    ConfigWrapper() = default;
 
     ConfigStatusReturnType write(nvs_handle_t nvsHandle, value_t value);
 
@@ -40,13 +36,13 @@ public:
     std::string valueAsString() const override final;
     std::string defaultAsString() const override final;
 
-    T defaultValue() const;
+    virtual T defaultValue() const = 0;
 
     ConfigStatusReturnType loadFromFlash(nvs_handle_t nvsHandle) override final;
     ConfigStatusReturnType reset(nvs_handle_t nvsHandle) override final;
     ConfigStatusReturnType forceReset(nvs_handle_t nvsHandle) override final;
 
-    ConfigConstraintReturnType checkValue(value_t value) const;
+    virtual ConfigConstraintReturnType checkValue(value_t value) const = 0;
 
     const T &value() const { return m_value; }
 
@@ -54,17 +50,6 @@ private:
     ConfigStatusReturnType writeToFlash(nvs_handle_t nvsHandle, value_t value);
 
     T m_value;
-
-    const enum : uint8_t { DefaultByValue, DefaultByFactoryConfig, DefaultByCallback } m_defaultType;
-
-    union
-    {
-        const T m_defaultValue;
-        const ConfigWrapper<T> * const m_factoryConfig;
-        const DefaultValueCallbackPtr m_defaultCallback;
-    };
-
-    const ConstraintCallback m_constraintCallback;
 };
 
 } // namespace espconfig

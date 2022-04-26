@@ -19,20 +19,15 @@
 
 #define INSTANTIATE_CONFIGWRAPPER_TEMPLATES(TYPE) \
     namespace espconfig { \
-    template ConfigWrapper<TYPE>::ConfigWrapper(const TYPE &defaultValue, ConstraintCallback constraintCallback); \
-    template ConfigWrapper<TYPE>::ConfigWrapper(TYPE &&defaultValue, ConstraintCallback constraintCallback); \
-    template ConfigWrapper<TYPE>::ConfigWrapper(const ConfigWrapper<TYPE> &factoryConfig, ConstraintCallback constraintCallback); \
-    template ConfigWrapper<TYPE>::ConfigWrapper(DefaultValueCallbackRef &defaultCallback, ConstraintCallback constraintCallback); \
-    template ConfigWrapper<TYPE>::~ConfigWrapper(); \
     template ConfigStatusReturnType ConfigWrapper<TYPE>::write(nvs_handle_t nvsHandle, value_t value); \
     template<> const char *ConfigWrapper<TYPE>::type() const { return #TYPE; } \
     template std::string ConfigWrapper<TYPE>::valueAsString() const; \
     template std::string ConfigWrapper<TYPE>::defaultAsString() const; \
-    template TYPE ConfigWrapper<TYPE>::defaultValue() const; \
+    /* template TYPE ConfigWrapper<TYPE>::defaultValue() const; */ \
     template ConfigStatusReturnType ConfigWrapper<TYPE>::loadFromFlash(nvs_handle_t nvsHandle); \
     template ConfigStatusReturnType ConfigWrapper<TYPE>::reset(nvs_handle_t nvsHandle); \
     template ConfigStatusReturnType ConfigWrapper<TYPE>::forceReset(nvs_handle_t nvsHandle); \
-    template ConfigConstraintReturnType ConfigWrapper<TYPE>::checkValue(value_t value) const; \
+    /* template ConfigConstraintReturnType ConfigWrapper<TYPE>::checkValue(value_t value) const; */ \
     template ConfigStatusReturnType ConfigWrapper<TYPE>::writeToFlash(nvs_handle_t nvsHandle, value_t value); \
     } // namespace espconfig
 
@@ -40,49 +35,6 @@ namespace espconfig {
 namespace {
 constexpr const char * const TAG = "CONFIG";
 } // namespace
-
-template<typename T>
-ConfigWrapper<T>::ConfigWrapper(const T &defaultValue, ConstraintCallback constraintCallback) :
-    m_defaultType{DefaultByValue},
-    m_defaultValue{defaultValue},
-    m_constraintCallback{constraintCallback}
-{
-}
-
-template<typename T>
-ConfigWrapper<T>::ConfigWrapper(T &&defaultValue, ConstraintCallback constraintCallback) :
-    m_defaultType{DefaultByValue},
-    m_defaultValue{std::move(defaultValue)},
-    m_constraintCallback{constraintCallback}
-{
-}
-
-template<typename T>
-ConfigWrapper<T>::ConfigWrapper(const ConfigWrapper<T> &factoryConfig, ConstraintCallback constraintCallback) :
-    m_defaultType{DefaultByFactoryConfig},
-    m_factoryConfig{&factoryConfig},
-    m_constraintCallback{constraintCallback}
-{
-}
-
-template<typename T>
-ConfigWrapper<T>::ConfigWrapper(const DefaultValueCallbackRef &defaultCallback, ConstraintCallback constraintCallback) :
-    m_defaultType{DefaultByCallback},
-    m_defaultCallback{&defaultCallback},
-    m_constraintCallback{constraintCallback}
-{
-}
-
-template<typename T>
-ConfigWrapper<T>::~ConfigWrapper()
-{
-    switch (m_defaultType)
-    {
-    case DefaultByValue:         m_defaultValue.~T(); break;
-    case DefaultByFactoryConfig: /*m_factoryConfig.~typeof(m_factoryConfig)();*/ break;
-    case DefaultByCallback:      /*m_defaultCallback.~typeof(m_defaultCallback)();*/ break;
-    }
-}
 
 template<typename T>
 ConfigStatusReturnType ConfigWrapper<T>::write(nvs_handle_t nvsHandle, value_t value)
@@ -123,19 +75,6 @@ std::string ConfigWrapper<T>::defaultAsString() const
     CONFIGWRAPPER_TOSTRING_USINGS
 
     return toString(defaultValue());
-}
-
-template<typename T>
-T ConfigWrapper<T>::defaultValue() const
-{
-    switch (m_defaultType)
-    {
-    case DefaultByValue:         return m_defaultValue;
-    case DefaultByFactoryConfig: assert(m_factoryConfig->m_loaded); return m_factoryConfig->value();
-    case DefaultByCallback:      return m_defaultCallback();
-    }
-
-    __builtin_unreachable();
 }
 
 template<typename T>
@@ -214,15 +153,6 @@ ConfigStatusReturnType ConfigWrapper<T>::forceReset(nvs_handle_t nvsHandle)
         return tl::make_unexpected(std::string{"nvs_erase_key() failed with "} + esp_err_to_name(result));
 
     return {};
-}
-
-template<typename T>
-ConfigConstraintReturnType ConfigWrapper<T>::checkValue(value_t value) const
-{
-    if (!m_constraintCallback)
-        return {};
-
-    return m_constraintCallback(value);
 }
 
 template<typename T>
