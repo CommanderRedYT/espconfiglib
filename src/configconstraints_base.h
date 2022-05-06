@@ -94,6 +94,14 @@ ConfigConstraintReturnType MinMaxValue(typename ConfigWrapper<T>::value_t val)
     return {};
 }
 
+template<typename T>
+ConfigConstraintReturnType MinMaxValue(typename ConfigWrapper<T>::value_t val, T MIN_VALUE, T MAX_VALUE)
+{
+    if (val < MIN_VALUE || val > MAX_VALUE)
+        return tl::make_unexpected(fmt::format("Value {} exceeds range {} to {}", val, MIN_VALUE, MAX_VALUE));
+    return {};
+}
+
 template<typename T, T MIN_VALUE, T MAX_VALUE>
 ConfigConstraintReturnType MinMaxOrZeroValue(typename ConfigWrapper<T>::value_t val)
 {
