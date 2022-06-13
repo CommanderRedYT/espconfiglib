@@ -14,10 +14,14 @@ namespace espconfig {
 
 inline esp_err_t nvs_get(nvs_handle handle, const char* key, int8_t* out_value)  { return nvs_get_i8 (handle, key, out_value); }
 inline esp_err_t nvs_get(nvs_handle handle, const char* key, uint8_t* out_value) { return nvs_get_u8 (handle, key, out_value); }
+//inline esp_err_t nvs_get(nvs_handle handle, const char* key, char* out_value)    { return nvs_get_i8 (handle, key, (int8_t*)out_value); }
+//inline esp_err_t nvs_get(nvs_handle handle, const char* key, unsigned char* out_value) { return nvs_get_u8 (handle, key, (uint8_t*)out_value); }
 inline esp_err_t nvs_get(nvs_handle handle, const char* key, int16_t* out_value) { return nvs_get_i16(handle, key, out_value); }
 inline esp_err_t nvs_get(nvs_handle handle, const char* key, uint16_t* out_value){ return nvs_get_u16(handle, key, out_value); }
 inline esp_err_t nvs_get(nvs_handle handle, const char* key, int32_t* out_value) { return nvs_get_i32(handle, key, out_value); }
 inline esp_err_t nvs_get(nvs_handle handle, const char* key, uint32_t* out_value){ return nvs_get_u32(handle, key, out_value); }
+inline esp_err_t nvs_get(nvs_handle handle, const char* key, int* out_value) { return nvs_get_i32(handle, key, (int32_t*)out_value); }
+inline esp_err_t nvs_get(nvs_handle handle, const char* key, unsigned int* out_value){ return nvs_get_u32(handle, key, (uint32_t*)out_value); }
 inline esp_err_t nvs_get(nvs_handle handle, const char* key, int64_t* out_value) { return nvs_get_i64(handle, key, out_value); }
 inline esp_err_t nvs_get(nvs_handle handle, const char* key, uint64_t* out_value){ return nvs_get_u64(handle, key, out_value); }
 inline esp_err_t nvs_get(nvs_handle handle, const char* key, bool* out_value)
@@ -67,6 +71,8 @@ inline esp_err_t nvs_set(nvs_handle handle, const char* key, int16_t value)     
 inline esp_err_t nvs_set(nvs_handle handle, const char* key, uint16_t value)                  { return nvs_set_u16(handle, key, value); }
 inline esp_err_t nvs_set(nvs_handle handle, const char* key, int32_t value)                   { return nvs_set_i32(handle, key, value); }
 inline esp_err_t nvs_set(nvs_handle handle, const char* key, uint32_t value)                  { return nvs_set_u32(handle, key, value); }
+inline esp_err_t nvs_set(nvs_handle handle, const char* key, int value)                       { return nvs_set_i32(handle, key, value); }
+inline esp_err_t nvs_set(nvs_handle handle, const char* key, unsigned int value)              { return nvs_set_u32(handle, key, value); }
 inline esp_err_t nvs_set(nvs_handle handle, const char* key, const int64_t &value)            { return nvs_set_i64(handle, key, value); }
 inline esp_err_t nvs_set(nvs_handle handle, const char* key, const uint64_t &value)           { return nvs_set_u64(handle, key, value); }
 inline esp_err_t nvs_set(nvs_handle handle, const char* key, bool value)                      { return nvs_set_u8 (handle, key, value); }

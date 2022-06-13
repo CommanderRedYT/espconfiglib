@@ -6,6 +6,8 @@
 // esp-idf includes
 #include <nvs.h>
 
+#include <futurecpp.h>
+
 // local includes
 #include "configutils_base.h"
 
@@ -22,6 +24,6 @@
     \
     inline esp_err_t nvs_set(nvs_handle handle, const char* key, Name value) \
     { \
-        return nvs_set(handle, key, std::underlying_type_t<Name>(value)); \
+        return nvs_set(handle, key, std::to_underlying(value)); \
     } \
     } // namespace espconfig
