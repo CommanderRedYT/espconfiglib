@@ -3,12 +3,10 @@
 // system includes
 #include <cstdint>
 #include <string>
+#include <bit>
 
 // esp-idf includes
 #include <nvs.h>
-
-// local includes
-#include "futurecpp.h"
 
 namespace espconfig {
 

@@ -2,11 +2,10 @@
 
 // system includes
 #include <type_traits>
+#include <utility>
 
 // esp-idf includes
 #include <nvs.h>
-
-#include <futurecpp.h>
 
 // local includes
 #include "configutils_base.h"
