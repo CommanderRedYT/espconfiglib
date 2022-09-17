@@ -38,6 +38,7 @@ set(dependencies
     espchrono
     expected
     fmt
+    nvs_flash
 )
 
 idf_component_register(
