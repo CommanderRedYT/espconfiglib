@@ -52,12 +52,39 @@ ConfigConstraintReturnType StringOr(const std::string &str)
     return tl::make_unexpected(fmt::format("None of the following 2 constraints succeded: {} | {}", result0.error(), result1.error()));
 }
 
+template<ConfigWrapper<std::string>::ConstraintCallback callback0, ConfigWrapper<std::string>::ConstraintCallback callback1, ConfigWrapper<std::string>::ConstraintCallback callback2>
+ConfigConstraintReturnType StringOr(const std::string &str)
+{
+    const auto result0 = callback0(str);
+    if (result0)
+        return {};
+    const auto result1 = callback1(str);
+    if (result1)
+        return {};
+    const auto result2 = callback2(str);
+    if (result2)
+        return {};
+    return tl::make_unexpected(fmt::format("None of the following 3 constraints succeded: {} | {} | {}", result0.error(), result1.error(), result2.error()));
+}
+
 template<ConfigWrapper<std::string>::ConstraintCallback callback0, ConfigWrapper<std::string>::ConstraintCallback callback1>
 ConfigConstraintReturnType StringAnd(const std::string &str)
 {
     if (const auto result = callback0(str); !result)
         return tl::make_unexpected(result.error());
     if (const auto result = callback1(str); !result)
+        return tl::make_unexpected(result.error());
+    return {};
+}
+
+template<ConfigWrapper<std::string>::ConstraintCallback callback0, ConfigWrapper<std::string>::ConstraintCallback callback1, ConfigWrapper<std::string>::ConstraintCallback callback2>
+ConfigConstraintReturnType StringAnd(const std::string &str)
+{
+    if (const auto result = callback0(str); !result)
+        return tl::make_unexpected(result.error());
+    if (const auto result = callback1(str); !result)
+        return tl::make_unexpected(result.error());
+    if (const auto result = callback2(str); !result)
         return tl::make_unexpected(result.error());
     return {};
 }
