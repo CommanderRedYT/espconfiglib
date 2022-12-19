@@ -21,7 +21,7 @@ class ConfigWrapper : public ConfigWrapperInterface
     CPP_DISABLE_COPY_MOVE(ConfigWrapper)
 
 public:
-    using value_t = typename std::conditional<std::is_same<T, std::string>::value, const T &, T>::type;
+    using value_t = std::conditional_t<std::is_same<T, std::string>::value, const T &, T>;
     using ConstraintCallback = ConfigConstraintReturnType(*)(value_t);
 
     ConfigWrapper() = default;
