@@ -2,9 +2,9 @@
 
 // system includes
 #include <string>
+#include <expected>
 
 // 3rdparty lib includes
-#include <tl/expected.hpp>
 #include <fmt/core.h>
 
 // local includes
@@ -16,7 +16,7 @@ inline ConfigConstraintReturnType MinTimeSyncInterval(espchrono::milliseconds32 
 {
     using namespace std::chrono_literals;
     if (val < 15s)
-        return tl::make_unexpected("SNTPv4 RFC 4330 enforces a minimum update time of 15 seconds");
+        return std::unexpected("SNTPv4 RFC 4330 enforces a minimum update time of 15 seconds");
     return {};
 }
 } // namespace espconfig

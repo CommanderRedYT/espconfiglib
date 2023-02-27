@@ -153,7 +153,7 @@ ConfigStatusReturnType ConfigWrapper<T>::forceReset(nvs_handle_t nvsHandle)
     }
 
     if (result != ESP_OK)
-        return tl::make_unexpected(std::string{"nvs_erase_key() failed with "} + esp_err_to_name(result));
+        return std::unexpected(std::string{"nvs_erase_key() failed with "} + esp_err_to_name(result));
 
     return {};
 }
@@ -173,7 +173,7 @@ ConfigStatusReturnType ConfigWrapper<T>::writeToFlash(nvs_handle_t nvsHandle, va
     m_touched = true;
 
     if (result != ESP_OK)
-        return tl::make_unexpected(std::string{"nvs_set() failed with "} + esp_err_to_name(result));
+        return std::unexpected(std::string{"nvs_set() failed with "} + esp_err_to_name(result));
     return {};
 }
 

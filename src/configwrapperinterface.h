@@ -2,19 +2,17 @@
 
 // system includes
 #include <string>
+#include <expected>
 
 // esp-idf includes
 #include <nvs.h>
-
-// 3rdparty lib includes
-#include <tl/expected.hpp>
 
 // local includes
 #include "cppmacros.h"
 
 namespace espconfig {
 
-using ConfigStatusReturnType = tl::expected<void, std::string>;
+using ConfigStatusReturnType = std::expected<void, std::string>;
 
 class ConfigWrapperInterface
 {

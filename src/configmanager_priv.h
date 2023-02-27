@@ -166,7 +166,7 @@ ConfigStatusReturnType ConfigManager<ConfigContainer>::reset()
     });
 
     if (!message.empty())
-        return tl::make_unexpected(std::move(message));
+        return std::unexpected(std::move(message));
 
     return {};
 }

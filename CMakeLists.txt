@@ -36,7 +36,6 @@ set(dependencies
     espwifistack
     date
     espchrono
-    expected
     fmt
     nvs_flash
 )

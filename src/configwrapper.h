@@ -3,9 +3,7 @@
 // system includes
 #include <string>
 #include <type_traits>
-
-// 3rdparty lib includes
-#include <tl/expected.hpp>
+#include <expected>
 
 // local includes
 #include "configwrapperinterface.h"
