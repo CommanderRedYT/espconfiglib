@@ -45,7 +45,7 @@ esp_err_t ConfigManager<ConfigContainer>::init(const char *ns)
             return result;
     }
 #endif
-#else
+#else // CONFIG_NVS_ENCRYPTION
     const esp_partition_t *key_part = esp_partition_find_first(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_DATA_NVS_KEYS, NULL);
     if (!key_part)
     {
@@ -87,7 +87,7 @@ esp_err_t ConfigManager<ConfigContainer>::init(const char *ns)
             return result;
     }
 #endif
-#endif
+#endif // CONFIG_NVS_ENCRYPTION
 
     {
         const auto result = nvs_open_from_partition("nvs", ns, NVS_READWRITE, &nvs_handle_user);
@@ -119,12 +119,19 @@ esp_err_t ConfigManager<ConfigContainer>::loadFromFlash()
 
     bool success = true;
     ConfigContainer::callForEveryConfig([&](ConfigWrapperInterface &config){
+        if (strlen(config.nvsName()) > 15)
+        {
+            ESP_LOGW(TAG, "config key '%s' is longer than 15 characters", config.nvsName());
+            success = false;
+            return false; // don't abort loop
+        }
+
         if (const auto result = config.loadFromFlash(nvs_handle_user); !result)
         {
             ESP_LOGE(TAG, "config parameter %s failed to load: %.*s", config.nvsName(), result.error().size(), result.error().data());
             success = false;
         }
-        return false; // dont abort the loop
+        return false; // don't abort the loop
     });
 
     const auto after = espchrono::millis_clock::now();

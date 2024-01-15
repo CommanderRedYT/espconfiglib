@@ -39,7 +39,17 @@ public:
 
     virtual ConfigConstraintReturnType checkValue(value_t value) const = 0;
 
-    const T &value() const { return m_value; }
+    const T &value() const
+    {
+#if defined(CONFIG_COMPILER_CXX_EXCEPTIONS) && CONFIG_COMPILER_CXX_EXCEPTIONS != 0
+        if (!m_loaded)
+            throw std::runtime_error("ConfigWrapper::value() called without loading first");
+#else
+#warning "COMPILER_CXX_EXCEPTIONS disabled, ConfigWrapper::value() called without loading first will assert"
+        assert(m_loaded);
+#endif
+        return m_value;
+    }
 
 private:
     ConfigStatusReturnType writeToFlash(nvs_handle_t nvsHandle, value_t value);
