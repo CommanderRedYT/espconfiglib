@@ -9,12 +9,10 @@
 // system includes
 #include <utility>
 #include <cassert>
+#include <format>
 
 // esp-idf includes
 #include <esp_log.h>
-
-// 3rdparty lib includes
-#include <fmt/core.h>
 
 // local includes
 #include "configwrapper.h"

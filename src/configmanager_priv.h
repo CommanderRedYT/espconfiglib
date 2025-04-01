@@ -2,12 +2,15 @@
 
 #include "configmanager.h"
 
+// system includes
+#include <format>
+
 // esp-idf includes
 #include <esp_log.h>
 #include <nvs_flash.h>
 
-// local includes
-#include "espchrono.h"
+// 3rdparty lib includes
+#include <espchrono.h>
 
 #define INSTANTIATE_CONFIGMANAGER_TEMPLATES(Type) \
     namespace espconfig { \
@@ -167,7 +170,7 @@ ConfigStatusReturnType ConfigManager<ConfigContainer>::reset()
         {
             if (!message.empty())
                 message.append(", ");
-            message.append(fmt::format("reset of {} failed: {}", config.nvsName(), result.error()));
+            message.append(std::format("reset of {} failed: {}", config.nvsName(), result.error()));
         }
         return false; // dont abort loop
     });

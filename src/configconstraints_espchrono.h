@@ -1,11 +1,7 @@
 #pragma once
 
 // system includes
-#include <string>
 #include <expected>
-
-// 3rdparty lib includes
-#include <fmt/core.h>
 
 // local includes
 #include "configwrapper.h"
